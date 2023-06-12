@@ -1,0 +1,70 @@
+body {
+  background-color: #734;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+main {
+  width: 320px;
+  margin: 50px auto 0;
+  text-align: center;
+}
+
+div.board {
+  display: grid;
+  border: 2px solid #fff;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+div.square {
+  width: 100px;
+  height: 100px;
+  border: 2px solid #fff;
+  box-sizing: border-box;
+  font-size: 4rem;
+  text-align: center;
+  line-height: 100px;
+  transition: background-color 0.3s ease;
+}
+
+div.square:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+div.result {
+  font-size: 2rem;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+div.result.green {
+  background-color: #5a5;
+}
+
+div.result.red {
+  background-color: #a55;
+}
+
+div.result.yellow {
+  background-color: #aa5;
+}
+
+.reset-button {
+  padding: 10px 20px;
+  border: none;
+  color: #fff;
+  background-color: #555;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.reset-button:hover {
+  background-color: rgb(63, 53, 53);
+}
