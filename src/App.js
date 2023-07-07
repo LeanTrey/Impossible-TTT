@@ -119,6 +119,13 @@ function App() {
   // This function handles the player's move when a square is clicked.
   function handleSquareClick(index) {
     const isPlayerTurn = squares.filter(square => square !== null).length % 2 === 0;
+    const squareIsFree = squares[index] === null;
+    console.log(squares)
+    // Exit early if the square has already been moved
+    if (squareIsFree) {
+      return
+    }
+    // Play into square if it is the player's turn and there is no game result
     if (isPlayerTurn && !result) {
       let newSquares = squares.slice();
       newSquares[index] = 'x';
