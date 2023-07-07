@@ -11,9 +11,9 @@ const defaultSquares = () => (new Array(9)).fill(null);
 
 // These are the combinations that would make a player win in the game.
 const lines = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-  [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-  [0, 4, 8], [2, 4, 6], // diagonals
+  [0, 1, 2], [3, 4, 5], [6, 7, 8],
+  [0, 3, 6], [1, 4, 7], [2, 5, 8],
+  [0, 4, 8], [2, 4, 6],
 ];
 
 Modal.setAppElement('#root');
@@ -23,6 +23,7 @@ function App() {
   const [squares, setSquares] = useState(defaultSquares());
   const [result, setResult] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [score, setScore] = useState({ wins: 0, ties: 0, losses: 0 });
 
   // This function identifies the available moves in the game. 
   // It looks at each square, if it's null, it means the square is not occupied.
@@ -41,10 +42,9 @@ function App() {
         return squares[a];
       }
     }
-    // If no more squares are available and no winner, then it's a tie
+     // If no more squares are available and no winner, then it's a tie
     return squares.filter(val => val === null).length ? null : 'tie';
   }
-
   // function used to calculate the best move for the computer player.
   // It returns an object with the best score and the move that leads to that score.
   function minimax(squares, depth, isMaximizingPlayer) {
@@ -55,8 +55,8 @@ function App() {
     if (result === 'o') return { score: 10 };
     if (result === 'tie') return { score: 0 };
 
+    // If it's the computer's turn it tries to maximize the score.
     if (isMaximizingPlayer) {
-      // If it's the computer's turn it tries to maximize the score.
       let bestScore = -Infinity;
       let move;
       for (let i = 0; i < squares.length; i++) {
@@ -72,7 +72,7 @@ function App() {
       }
       return { score: bestScore, move: move };
     } else {
-      // If it's the player's turn it tries to minimize the score.
+       // If it's the player's turn it tries to minimize the score.
       let bestScore = Infinity;
       let move;
       for (let i = 0; i < squares.length; i++) {
@@ -89,16 +89,18 @@ function App() {
       return { score: bestScore, move: move };
     }
   }
+
   // This useEffect hook runs whenever the state of squares or result changes.
   useEffect(() => {
     const isComputerTurn = squares.filter(square => square !== null).length % 2 === 1;
-    const result = calculateResult(squares);
+    const currentResult = calculateResult(squares);
     
-    
-    // If there's a result, it updates the result state.
-    if (result) {
-      setResult(result);
+    if (currentResult && !result) {
+      setResult(currentResult);
       setModalIsOpen(true);
+      if (currentResult === 'x') setScore({ ...score, wins: score.wins + 1 });
+      else if (currentResult === 'o') setScore({ ...score, losses: score.losses + 1 });
+      else if (currentResult === 'tie') setScore({ ...score, ties: score.ties + 1 });
       return;
     }
 
@@ -110,21 +112,21 @@ function App() {
     };
 
     // If it's the computer's turn and there's no result yet, it calculates the best move and makes it.
-    if (isComputerTurn && !result) {
+    if (isComputerTurn && !currentResult) {
       const bestMove = minimax(squares.slice(), 0, true).move;
       putComputerAt(bestMove);
     }
-  }, [squares, result]);
+  }, [squares]);
 
   // This function handles the player's move when a square is clicked.
   function handleSquareClick(index) {
     const isPlayerTurn = squares.filter(square => square !== null).length % 2 === 0;
     const squareIsFree = squares[index] === null;
-    console.log(squares)
-    // Exit early if the square has already been moved
-    if (squareIsFree) {
-      return
+
+    if (!squareIsFree || !isPlayerTurn || result) {
+      return;
     }
+
     // Play into square if it is the player's turn and there is no game result
     if (isPlayerTurn && !result) {
       let newSquares = squares.slice();
@@ -132,7 +134,11 @@ function App() {
       setSquares(newSquares);
     }
   }
-  // This function resets the game.
+  // This function resets the score
+  function resetScore() {
+    setScore({ wins: 0, ties: 0, losses: 0 });
+  }
+  // This function resets the game
   function resetGame() {
     setSquares(defaultSquares());
     setResult(null);
@@ -152,6 +158,12 @@ function App() {
           />
         ))}
       </Board>
+      <div className='scoreboard'>
+        Wins: {score.wins} Ties: {score.ties} Losses: {score.losses}
+      </div>
+      <button className="reset-score-button" onClick={resetScore}>
+        Reset Score
+      </button>
       <button className="reset-button" onClick={resetGame}>
         Reset Game
       </button>
@@ -164,9 +176,9 @@ function App() {
       >
         <h2>Game Over</h2>
         <div className={`result ${result === 'tie' ? 'yellow' : (result === 'o' ? 'red' : 'green')}`}>
-          {result === 'tie' ? "It's a Draw!" : (result === 'o' ? "You LOST!" : "You WON!")}
+          {result === 'tie' ? 'Tie!' : (result === 'o' ? 'You Lose!' : 'You Win!')}
         </div>
-        <button className="play-again-button" onClick={resetGame}>Play again</button>
+        <button className='play-again-btn' onClick={resetGame}>Play Again</button>
       </Modal>
     </main>
   );
